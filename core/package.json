@@ -1,0 +1,38 @@
+{
+  "name": "@ashrocket/bitbucket-mcp-core",
+  "version": "0.1.0",
+  "description": "Shared Bitbucket API client + MCP tool definitions (used by stdio server and hosted worker)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./bitbucket": {
+      "types": "./dist/bitbucket.d.ts",
+      "import": "./dist/bitbucket.js"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "import": "./dist/tools/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bitbucket MCP — journey so far</title>
+<style>
+  :root {
+    --bg: #fbf7f0;
+    --bg-elev: #fffdf8;
+    --bg-card: #ffffff;
+    --ink: #1d1915;
+    --ink-muted: #5c564e;
+    --ink-faint: #8a8379;
+    --rule: #e8e1d4;
+    --accent: #c96f4a;
+    --accent-ink: #8b4a2b;
+    --accent-soft: #fdeadf;
+    --ok: #5f8a4c;
+    --bb-blue: #0052CC;
+    --code-bg: #1d1915;
+    --code-ink: #f5ecd9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #181512; --bg-elev: #221d18; --bg-card: #2a241e;
+      --ink: #f5ecd9; --ink-muted: #c1b7a4; --ink-faint: #8a8379;
+      --rule: #3a322a; --accent: #e28a66; --accent-ink: #fdc8ab;
+      --accent-soft: #3a2419; --ok: #8fb37c;
+      --code-bg: #0e0c0a; --code-ink: #f5ecd9;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  .shell { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px dotted currentColor; }
+  a:hover { border-bottom-style: solid; }
+  code { background: var(--accent-soft); color: var(--accent-ink); padding: 1px 6px; border-radius: 4px;
+    font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { background: var(--code-bg); color: var(--code-ink); padding: 1rem 1.2rem;
+    border-radius: 10px; overflow-x: auto; font: 0.9em ui-monospace, Menlo, monospace;
+    line-height: 1.55; }
+  h1 { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.15; letter-spacing: -0.01em;
+    margin: 0 0 0.6rem; }
+  h2 { font-size: 1.4rem; margin: 2.5rem 0 0.8rem; letter-spacing: -0.005em; }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; }
+  .kicker { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-faint); margin-bottom: 0.5rem; }
+  .lede { font-size: 1.08rem; color: var(--ink-muted); margin: 1rem 0 0; max-width: 60ch; }
+  .card { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 14px;
+    padding: 1.15rem 1.35rem; margin: 1rem 0; }
+  .card.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .card.accent strong { color: var(--accent-ink); }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; }
+  .stat { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1rem 1.1rem; }
+  .stat b { display: block; font-size: 1.8rem; color: var(--accent-ink);
+    letter-spacing: -0.02em; line-height: 1; }
+  .stat span { display: block; font-size: 0.85rem; color: var(--ink-muted); margin-top: 0.4rem; }
+  .timeline { border-left: 2px solid var(--rule); padding-left: 1.2rem; margin: 1.5rem 0;
+    position: relative; }
+  .t-item { position: relative; margin: 1.2rem 0; }
+  .t-item::before { content: ''; position: absolute; left: -1.63rem; top: 0.45rem;
+    width: 12px; height: 12px; border-radius: 999px; background: var(--accent); }
+  .t-item.pending::before { background: var(--bg); border: 2px solid var(--accent); }
+  .t-item .who { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-faint); }
+  .t-item .what { color: var(--ink); margin: 0.1rem 0 0; }
+  .t-item .why { color: var(--ink-muted); font-size: 0.94rem; margin-top: 0.2rem; }
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.8rem; margin-top: 1rem; }
+  .group { background: var(--bg-card); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 0.9rem 1rem; }
+  .group h3 { margin: 0; font-size: 0.95rem; }
+  .group small { color: var(--ink-muted); font-size: 0.78rem; }
+  .group .count { float: right; background: var(--accent-soft); color: var(--accent-ink);
+    padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+  .arch { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 14px;
+    padding: 1.25rem; margin: 1rem 0; font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.85rem; line-height: 1.7; color: var(--ink-muted); white-space: pre;
+    overflow-x: auto; }
+  .pill { display: inline-block; background: var(--accent-soft); color: var(--accent-ink);
+    padding: 2px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+  .pill.ok { background: rgba(95, 138, 76, 0.12); color: var(--ok); }
+  .pill.pending { background: var(--bg); border: 1px solid var(--rule); color: var(--ink-muted); }
+  footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--rule);
+    color: var(--ink-faint); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="kicker">Build log · 2026-04-16</div>
+<h1>Bitbucket MCP — journey so far</h1>
+<p class="lede">
+  From "build a viable MCP server" to "actually, should this be a hosted
+  service?" in four back-and-forths. Here's where we are, what's built, and
+  the decision blocking the next move.
+</p>
+
+<div class="row" style="margin-top: 2rem">
+  <div class="stat"><b>53</b><span>MCP tools written</span></div>
+  <div class="stat"><b>7</b><span>tool modules</span></div>
+  <div class="stat"><b>0</b><span>TypeScript errors</span></div>
+  <div class="stat"><b>3</b><span>auth modes supported</span></div>
+</div>
+
+<h2>Decisions, in order</h2>
+
+<div class="timeline">
+
+  <div class="t-item">
+    <div class="who">You · opening ask</div>
+    <p class="what">
+      "Build a viable MCP server that enables use of Bitbucket from Claude or
+      Codex. Make it shareware, up on a site, ask for donations, generate an
+      account on a donation platform, show running total, run ads for
+      Atlassian and its competitors."
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">Me → You · scope carveout</div>
+    <p class="what">
+      I can build the code + site + Worker + donation plumbing end to end.
+      Account creation on any donation platform is the hard line — identity
+      verification, payout method, tax paperwork. That's on you.
+    </p>
+    <p class="why">
+      My first pass suggested Ko-fi (lower barrier).
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">You · pushback</div>
+    <p class="what">"How is any of this better than just using a Stripe integration?"</p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">Me · agreed, pivoted to Stripe</div>
+    <p class="what">
+      Ko-fi was a bad suggestion. Stripe wins on: own the data, own the UX,
+      HMAC-signed webhooks, direct to bank, same fee rate. Ko-fi's only edge
+      was recognizable donate-badge, and we're building the site anyway so it
+      doesn't matter.
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">You · follow-up</div>
+    <p class="what">"Can we have multiple Stripe accounts?"</p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">Me · recommendation</div>
+    <p class="what">
+      Yes, but don't. One "ashrocket collective" account for all shareware
+      (bitbucket-mcp, archie, claude-pigeon, agent-pb, ...). One Product +
+      Payment Link per tool. Metadata <code>project: "bitbucket-mcp"</code>
+      drives per-project running totals. Retailaer and VaultBridge stay
+      separate — distinct entities.
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">You · green light with a placeholder</div>
+    <p class="what">"Yes, we just leave a placeholder for the commercial parts for now."</p>
+    <p class="why">
+      I built: MCP server (53 tools, clean typecheck, clean build), Astro
+      site scaffolding, warm palette, config layer. See tree below.
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">You · the big question</div>
+    <p class="what">"Can this be sent to the cloud to be worked on there? I see no reason it has to run locally."</p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">Me · agreed, proposed dual deploy</div>
+    <p class="what">
+      Yes, and it's better. MCP has a Streamable HTTP transport for exactly
+      this. The tool code I wrote is pure <code>fetch()</code>, it ports to
+      Workers unmodified (swap <code>Buffer</code> for <code>btoa</code>,
+      <code>process.env</code> for Worker env). Stdio npm package stays as
+      fallback for privacy-conscious users.
+    </p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">You · the analogy</div>
+    <p class="what">"Like Teleport or web Claude Code or something like that?"</p>
+  </div>
+
+  <div class="t-item">
+    <div class="who">Me · yes, plus a market gap</div>
+    <p class="what">
+      Closer reference: Anthropic's hosted MCP connectors in Claude.ai
+      (Atlassian, Linear, Sentry, Gmail). Paste URL, OAuth once, done.
+      <strong>Atlassian's official MCP covers Jira and Confluence but NOT
+      Bitbucket.</strong> That's the gap we fill.
+    </p>
+  </div>
+
+  <div class="t-item pending">
+    <div class="who">Now · awaiting decision</div>
+    <p class="what">
+      Pivot to Worker-first architecture? Details below.
+    </p>
+  </div>
+
+</div>
+
+<h2>What's built</h2>
+
+<div class="card">
+<pre style="background:transparent;color:var(--ink);padding:0;font-size:0.88rem">~/ashcode/bitbucket-mcp/
+├── .env.example          # 3 auth modes documented
+├── .gitignore
+├── LICENSE               # MIT
+├── README.md
+├── server/               # npm: @ashrocket/bitbucket-mcp
+│   ├── package.json      # bin: bitbucket-mcp
+│   ├── tsconfig.json     # NodeNext, strict + noUncheckedIndexedAccess
+│   └── src/
+│       ├── index.ts      # stdio transport, graceful shutdown
+│       ├── bitbucket.ts  # API client, pagination, timeouts, rate-limit msgs
+│       ├── tool-kit.ts   # shared input helpers
+│       ├── types.ts      # typed errors
+│       └── tools/        # 53 tools across 7 modules
+│           ├── workspaces.ts   (5)
+│           ├── repositories.ts (10)
+│           ├── pullrequests.ts (17)
+│           ├── pipelines.ts    (7)
+│           ├── issues.ts       (6)
+│           ├── commits.ts      (4)
+│           ├── branches.ts     (4)
+│           └── index.ts
+├── site/                 # Astro 5 + Cloudflare Pages (partial)
+│   ├── astro.config.mjs
+│   ├── src/lib/config.ts
+│   ├── src/lib/tools.ts
+│   ├── src/styles/global.css  # warm palette — orange/cream, not cold tech-blue
+│   └── src/components/Hero.astro
+├── worker/               # NOT YET (pending architecture decision)
+└── docs/
+    └── journey.html      # you are here</pre>
+</div>
+
+<h3>Tools coverage</h3>
+<div class="tools">
+  <div class="group">
+    <span class="count">5</span>
+    <h3>Workspaces &amp; projects</h3>
+    <small>current_user, list_workspaces, get_workspace, list_projects, get_project</small>
+  </div>
+  <div class="group">
+    <span class="count">10</span>
+    <h3>Repositories &amp; files</h3>
+    <small>list/get repos, branches, tags, file contents, directory listing, watchers, default reviewers, permissions</small>
+  </div>
+  <div class="group">
+    <span class="count">17</span>
+    <h3>Pull requests</h3>
+    <small>Full lifecycle: list/get/create/update/merge/decline, approve/unapprove, request_changes, comments, diff, diffstat, commits, activity</small>
+  </div>
+  <div class="group">
+    <span class="count">7</span>
+    <h3>Pipelines (CI)</h3>
+    <small>list, get, trigger, stop, steps, step detail, step log (with tail_bytes for log triage)</small>
+  </div>
+  <div class="group">
+    <span class="count">6</span>
+    <h3>Issues</h3>
+    <small>CRUD + comments on repo-level issue tracker</small>
+  </div>
+  <div class="group">
+    <span class="count">4</span>
+    <h3>Commits</h3>
+    <small>list, get, diff, diffstat</small>
+  </div>
+  <div class="group">
+    <span class="count">4</span>
+    <h3>Branches &amp; tags</h3>
+    <small>create/delete branches and tags</small>
+  </div>
+</div>
+
+<h3>Quality notes</h3>
+<ul>
+  <li><code>tsc --noEmit</code>: 0 errors under strict + <code>noUncheckedIndexedAccess</code> + <code>noImplicitOverride</code></li>
+  <li><code>npm run build</code>: clean dist</li>
+  <li>Smoke test: missing creds → clear stderr message, exit 1</li>
+  <li>Three auth modes: Atlassian API token (recommended), workspace/repo access token (Bearer), legacy app password</li>
+  <li>Pagination: async generator <code>paginate()</code> + <code>collect()</code> with <code>maxItems</code> cap</li>
+  <li>Rate-limit aware: 429 responses include <code>x-ratelimit-reset</code> in error message</li>
+  <li>Pipeline step log supports <code>tail_bytes</code> — only returns last N bytes for failure triage (logs can be 100MB)</li>
+</ul>
+
+<h2>The pivot decision</h2>
+
+<div class="card accent">
+<strong>Proposal:</strong> Worker-first, stdio as peer, same codebase.
+<br><br>
+The tool code ports 1:1 to Cloudflare Workers. The question is whether to pivot
+the repo structure now (before the site + Worker are wired) or ship local-first
+and add hosted later.
+</div>
+
+<h3>Architecture if we pivot now</h3>
+<div class="arch">bitbucket-mcp.raiteri.net
+    ├── /                  → marketing site (Astro, Cloudflare Pages)
+    ├── /mcp               → MCP Streamable HTTP transport
+    │                        (tool handlers from core/tools/*.ts)
+    ├── /oauth/callback    → Atlassian OAuth return URL
+    ├── /api/total         → running donation total (D1 query)
+    ├── /api/recent        → recent donations (transparency)
+    └── /api/stripe-hook   → Stripe webhook, HMAC verified
+
+D1 tables
+    users        (id, atlassian_account_id, refresh_token_encrypted, ...)
+    donations    (id, amount_cents, currency, project, created_at, ...)
+
+npm: @ashrocket/bitbucket-mcp
+    same tool code, stdio transport, for devs who don't trust our worker</div>
+
+<h3>Decision points</h3>
+<ol>
+  <li>
+    <strong>Auth mode:</strong>
+    <span class="pill">a) BYO token per request</span> — stateless, zero storage, less slick UX
+    vs
+    <span class="pill">b) Atlassian OAuth</span> — click-to-connect, we store refresh tokens in D1
+    <br><small>My vote: ship both. OAuth as default, header-auth as dev fallback.</small>
+  </li>
+  <li>
+    <strong>Repo scope:</strong>
+    <span class="pill">a) Pivot now</span> — restructure to <code>core/</code> + <code>server/</code> + <code>worker/</code> before more code lands
+    vs
+    <span class="pill">b) Keep local-first</span> — ship npm package now, add worker as v0.2
+    <br><small>My vote: pivot now. The code volume only grows from here.</small>
+  </li>
+</ol>
+
+<h3>What you still own</h3>
+<ul>
+  <li>Stripe account (Individual, one "ashrocket" covers all shareware)</li>
+  <li>Bitbucket OAuth consumer registration at <a href="https://bitbucket.org/account/settings/app-authorizations/" rel="noopener">bitbucket.org/account/settings</a></li>
+  <li>Cloudflare domain routing (<code>bitbucket-mcp.raiteri.net</code> → Pages + Worker)</li>
+  <li>All <code>.env</code> secrets via <code>wrangler secret put</code></li>
+</ul>
+
+<footer>
+  Built with 53 tools, 0 type errors, and one honest pivot.<br>
+  Awaiting: pivot y/n, then back to code.
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "name": "@ashrocket/bitbucket-mcp",
+  "version": "0.1.0",
+  "description": "Bitbucket Cloud MCP server (stdio) — use Bitbucket from Claude, Codex, and other MCP clients",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "bitbucket-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@ashrocket/bitbucket-mcp-core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "engines": { "node": ">=18" },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "bitbucket",
+    "bitbucket-cloud",
+    "atlassian",
+    "claude",
+    "codex",
+    "cursor"
+  ],
+  "author": "Ashley Raiteri <ashleyraiteri@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashrocket/bitbucket-mcp.git",
+    "directory": "server"
+  },
+  "homepage": "https://bitbucket-mcp.raiteri.net",
+  "bugs": {
+    "url": "https://github.com/ashrocket/bitbucket-mcp/issues"
+  }
+}

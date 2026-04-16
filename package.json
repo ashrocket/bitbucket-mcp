@@ -1,0 +1,21 @@
+{
+  "name": "bitbucket-mcp-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bitbucket MCP — core, server (stdio), worker (hosted), site",
+  "workspaces": [
+    "core",
+    "server",
+    "worker",
+    "site"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev:server": "npm run dev -w server",
+    "dev:worker": "npm run dev -w worker",
+    "dev:site": "npm run dev -w site"
+  },
+  "license": "MIT",
+  "author": "Ashley Raiteri <ashleyraiteri@gmail.com>"
+}

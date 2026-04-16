@@ -1,0 +1,29 @@
+name = "bitbucket-mcp-api"
+main = "src/index.ts"
+compatibility_date = "2025-10-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# ─── D1 database (set database_id after `npm run d1:create`) ───
+[[d1_databases]]
+binding = "DB"
+database_name = "bitbucket-mcp-prod"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# ─── Public vars ───
+[vars]
+PUBLIC_SITE_URL = "https://bitbucket-mcp.raiteri.net"
+OAUTH_CALLBACK_URL = "https://bitbucket-mcp.raiteri.net/oauth/callback"
+OAUTH_SCOPES = "account repository pullrequest:write pipeline:write"
+
+# ─── Secrets (set via `wrangler secret put <NAME>`): ───
+#   BITBUCKET_OAUTH_CLIENT_ID        — from bitbucket.org/account/settings/app-authorizations/
+#   BITBUCKET_OAUTH_CLIENT_SECRET    — ditto
+#   ENCRYPTION_KEY_HEX               — 32 random bytes hex-encoded (use: openssl rand -hex 32)
+#   STRIPE_WEBHOOK_SECRET            — whsec_... from Stripe dashboard → Webhooks
+#   STRIPE_RESTRICTED_KEY            — rk_... (optional; for fallback "read from Stripe directly")
+
+# ─── Routes (wire once the domain is delegated) ───
+# [[routes]]
+# pattern = "bitbucket-mcp.raiteri.net/*"
+# custom_domain = true

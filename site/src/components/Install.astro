@@ -1,0 +1,186 @@
+---
+import { config } from '../lib/config';
+
+const connectUrl = `${config.workerUrl}/oauth/authorize`;
+const mcpByoUrl = `${config.workerUrl}/mcp`;
+---
+
+<section id="install">
+  <div class="shell">
+    <div class="kicker">Install</div>
+    <h2>Two paths. Same tools.</h2>
+
+    <div class="path-grid">
+      <!-- Hosted path -->
+      <div class="path recommended">
+        <div class="path-head">
+          <h3>Hosted (recommended)</h3>
+          <span class="tag">One-click OAuth</span>
+        </div>
+        <p class="muted">
+          We run the MCP server. You authorize once with Bitbucket, paste your personal URL into Claude.
+          Zero install, always on latest version.
+        </p>
+        <a class="btn" href={connectUrl}>Connect Bitbucket →</a>
+        <p class="micro">You'll get a personal <code>/mcp/u/&lt;id&gt;</code> URL. Don't share it.</p>
+
+        <details class="advanced">
+          <summary>Advanced: BYO token (no OAuth)</summary>
+          <p class="muted" style="margin-top:0.5rem">
+            Pass an
+            <a href="https://id.atlassian.com/manage-profile/security/api-tokens" rel="noopener noreferrer">Atlassian API token</a>
+            via request header. Stateless — we never store it.
+          </p>
+          <pre><code>{`curl -X POST ${mcpByoUrl} \\
+  -H 'X-Bitbucket-Token: ATATT...' \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code></pre>
+        </details>
+      </div>
+
+      <!-- Local path -->
+      <div class="path">
+        <div class="path-head">
+          <h3>Local (stdio)</h3>
+          <span class="tag">Privacy-max</span>
+        </div>
+        <p class="muted">
+          Run the MCP server on your machine. No network hop through us, credentials stay in your shell.
+          Published as <code>{config.npmPackage}</code>.
+        </p>
+        <pre><code>{`npm i -g ${config.npmPackage}`}</code></pre>
+        <p class="micro">Then wire it into your MCP client. See below.</p>
+      </div>
+    </div>
+
+    <!-- Per-client snippets -->
+    <div class="clients">
+      <h3 class="sub-h3">Drop into your MCP client</h3>
+      <div class="client-grid">
+        <article class="client-card">
+          <h4>Claude Code</h4>
+          <p class="micro">Hosted:</p>
+          <pre><code>{`claude mcp add bitbucket --transport http \\
+  https://bitbucket-mcp.raiteri.net/mcp/u/<your-id>`}</code></pre>
+          <p class="micro">Local:</p>
+          <pre><code>{`claude mcp add bitbucket \\
+  -e BITBUCKET_API_TOKEN=ATATT... \\
+  -e BITBUCKET_WORKSPACE=your-workspace \\
+  -- npx -y ${config.npmPackage}`}</code></pre>
+        </article>
+
+        <article class="client-card">
+          <h4>Claude.ai Connectors</h4>
+          <ol>
+            <li>Settings → Connectors → Add connector</li>
+            <li>Paste your <code>/mcp/u/&lt;id&gt;</code> URL from the connect flow</li>
+            <li>Enable for your workspace</li>
+          </ol>
+          <p class="micro">
+            Fills the Bitbucket gap in Atlassian's official MCP (which only covers Jira + Confluence).
+          </p>
+        </article>
+
+        <article class="client-card">
+          <h4>Cursor / Codex / other</h4>
+          <p class="micro">MCP config JSON:</p>
+          <pre><code>{`{
+  "mcpServers": {
+    "bitbucket": {
+      "transport": {
+        "type": "http",
+        "url": "https://bitbucket-mcp.raiteri.net/mcp/u/<id>"
+      }
+    }
+  }
+}`}</code></pre>
+        </article>
+
+        <article class="client-card">
+          <h4>Raw / scripts</h4>
+          <p class="micro">Any MCP-aware tool can hit the HTTP endpoint directly:</p>
+          <pre><code>{`curl -X POST \\
+  https://bitbucket-mcp.raiteri.net/mcp/u/<id> \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code></pre>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0 3rem;
+  }
+  .path {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .path.recommended {
+    border-color: var(--accent);
+    position: relative;
+    background: linear-gradient(180deg, var(--accent-soft) 0%, var(--bg-card) 40%);
+  }
+  .path-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .path h3 { margin: 0; font-size: 1.2rem; }
+  .tag {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .path .btn { align-self: flex-start; margin-top: 0.2rem; }
+  .muted { color: var(--ink-muted); margin: 0; }
+  .micro {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    margin: 0.4rem 0;
+  }
+  .advanced {
+    margin-top: 0.4rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.8rem;
+  }
+  .advanced summary {
+    cursor: pointer;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+  .sub-h3 { font-size: 1.05rem; margin: 0 0 1rem; color: var(--ink-muted); font-weight: 600; }
+  .client-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .client-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+  }
+  .client-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+  .client-card ol {
+    margin: 0.5rem 0;
+    padding-left: 1.2rem;
+    color: var(--ink-muted);
+  }
+  .client-card ol li { margin-bottom: 0.3rem; }
+</style>

@@ -1,0 +1,208 @@
+---
+import { config } from '../lib/config';
+
+const totalUrl = `${config.workerUrl}/api/total?project=bitbucket-mcp`;
+const recentUrl = `${config.workerUrl}/api/recent?project=bitbucket-mcp&limit=5`;
+---
+
+<section id="donate" class="donate-section">
+  <div class="shell">
+    <div class="kicker">Support</div>
+    <h2>Donation-supported. 100% funds the work.</h2>
+    <p class="lede">
+      No ads in the tool. No telemetry in the server. No "sign up for pro." If this
+      saves you a workflow or a meeting, kick in what it's worth to you.
+    </p>
+
+    <div class="donate-grid">
+      <div class="card pitch">
+        <div class="total" id="donation-total" aria-live="polite">
+          <span class="total-big">—</span>
+          <span class="total-small">raised across <span id="donation-count">—</span> supporters</span>
+        </div>
+        <a class="btn big" href={config.donationUrl} rel="noopener noreferrer">
+          Donate via Stripe →
+        </a>
+        <p class="micro">
+          Secure checkout. One-time or recurring. Your choice of amount.
+        </p>
+        <ul class="suggest">
+          <li>Coffee — $5</li>
+          <li>Lunch — $20</li>
+          <li>A day of my time — $150</li>
+        </ul>
+      </div>
+
+      <div class="card recent">
+        <h3>Recent supporters</h3>
+        <ul id="recent-donations" class="recent-list">
+          <li class="placeholder">Loading…</li>
+        </ul>
+        <p class="micro">
+          Donor names shown as provided at checkout. Messages optional. Amounts
+          never hidden — full transparency.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ totalUrl, recentUrl }}>
+  // @ts-nocheck — totalUrl/recentUrl are injected by Astro's define:vars at build time
+  (async function populate() {
+    try {
+      const [totalRes, recentRes] = await Promise.all([
+        fetch(totalUrl).then((r) => r.ok ? r.json() : null),
+        fetch(recentUrl).then((r) => r.ok ? r.json() : null),
+      ]);
+
+      const totalEl = document.querySelector('#donation-total .total-big');
+      const countEl = document.getElementById('donation-count');
+      if (totalEl && totalRes) {
+        const amount = Number(totalRes.total_usd ?? 0);
+        const formatted = amount.toLocaleString(undefined, {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+        totalEl.textContent = formatted;
+      }
+      if (countEl && totalRes) {
+        countEl.textContent = String(totalRes.count ?? 0);
+      }
+
+      const recentEl = document.getElementById('recent-donations');
+      if (recentEl && recentRes && Array.isArray(recentRes.donations)) {
+        if (recentRes.donations.length === 0) {
+          recentEl.innerHTML = '<li class="placeholder">No donations yet — be the first.</li>';
+        } else {
+          recentEl.innerHTML = recentRes.donations
+            .map((d) => {
+              const amount = Number(d.amount_usd ?? 0).toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              });
+              const name = d.donor_name
+                ? String(d.donor_name).replace(/[<>&"']/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c])
+                : 'Anonymous';
+              const msg = d.donor_message
+                ? `<span class="msg"> — ${String(d.donor_message).slice(0, 100).replace(/[<>&"']/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c])}</span>`
+                : '';
+              return `<li><strong>${amount}</strong> from ${name}${msg}</li>`;
+            })
+            .join('');
+        }
+      }
+    } catch (err) {
+      // API not reachable yet (worker not deployed) — just show a friendlier empty state
+      const totalEl = document.querySelector('#donation-total .total-big');
+      if (totalEl) totalEl.textContent = '—';
+      const recentEl = document.getElementById('recent-donations');
+      if (recentEl) recentEl.innerHTML = '<li class="placeholder">Not yet collecting donations.</li>';
+    }
+  })();
+</script>
+
+<style>
+  .donate-section {
+    background:
+      radial-gradient(circle at 90% 20%, var(--accent-soft) 0%, transparent 40%),
+      var(--bg);
+  }
+  .lede {
+    color: var(--ink-muted);
+    max-width: 60ch;
+    margin: 0.5rem 0 2rem;
+  }
+  .donate-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 720px) {
+    .donate-grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem;
+  }
+  .card.pitch {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, var(--bg-card) 60%);
+  }
+  .total { margin-bottom: 1.2rem; }
+  .total-big {
+    display: block;
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent-ink);
+    line-height: 1;
+  }
+  .total-small {
+    display: block;
+    color: var(--ink-muted);
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+  }
+  .btn.big { font-size: 1.05rem; padding: 1rem 1.6rem; }
+  .micro {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    margin: 0.8rem 0 0;
+  }
+  .suggest {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+  .suggest li {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+  }
+  .recent h3 { margin: 0 0 0.8rem; font-size: 1rem; }
+  .recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .recent-list li {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    border-bottom: 1px dashed var(--rule);
+    padding-bottom: 0.5rem;
+  }
+  .recent-list li:last-child {
+    border-bottom: none;
+  }
+  .recent-list li strong {
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+  .recent-list .placeholder {
+    color: var(--ink-faint);
+    border-bottom: none;
+    font-style: italic;
+  }
+  .recent-list .msg {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    margin-top: 2px;
+  }
+</style>

@@ -1,0 +1,140 @@
+---
+import { adSlots } from '../lib/config';
+---
+
+<section id="ads">
+  <div class="shell">
+    <div class="kicker">The rest of the space</div>
+    <h2>Where to host your code.</h2>
+    <p class="lede">
+      This tool is for Bitbucket, but we're not partisan. Here are the platforms we think
+      are worth your time — Atlassian first (they did ship a good product), and the
+      alternatives we run across. Some are affiliate links, most aren't. None are
+      paid placements by us.
+    </p>
+
+    <div class="ad-grid">
+      {adSlots.map((slot) => (
+        <article class="ad" style={`--slot-accent: ${slot.accent}`}>
+          <header>
+            <div class="logo" aria-hidden="true">
+              <span class="logo-char">{slot.sponsor.charAt(0)}</span>
+            </div>
+            <h3>{slot.sponsor}</h3>
+          </header>
+          <p class="tagline">{slot.tagline}</p>
+          <div class="ad-foot">
+            <a
+              class="ad-cta"
+              href={slot.url}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+            >
+              {slot.cta} ↗
+            </a>
+            <span class="note">{slot.note}</span>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p class="disclosure">
+      <strong>Disclosure:</strong> we earn a small commission on some links (currently: GitLab's
+      affiliate program where available). We get nothing from Atlassian, GitHub, or the
+      non-profit / open-source hosts — those are there because they deserve to be.
+    </p>
+  </div>
+</section>
+
+<style>
+  .lede {
+    color: var(--ink-muted);
+    max-width: 60ch;
+    margin: 0.5rem 0 2rem;
+  }
+  .ad-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .ad {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ad::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--slot-accent);
+  }
+  .ad:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+  .ad header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--slot-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-char {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .ad h3 { margin: 0; font-size: 1.05rem; }
+  .tagline {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 0.92rem;
+    flex: 1;
+  }
+  .ad-foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+  }
+  .ad-cta {
+    color: var(--accent-ink);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: none;
+  }
+  .ad-cta:hover { text-decoration: underline; }
+  .note {
+    color: var(--ink-faint);
+    font-size: 0.75rem;
+    text-align: right;
+  }
+  .disclosure {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    max-width: 70ch;
+    margin: 2.5rem 0 0;
+    border-top: 1px dashed var(--rule);
+    padding-top: 1.2rem;
+  }
+</style>

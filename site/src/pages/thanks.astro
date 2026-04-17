@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import { config } from '../lib/config';
+---
+
+<Base title="Thank you — Bitbucket MCP" description="Your donation helps keep this free.">
+  <section class="thanks">
+    <div class="shell">
+      <div class="kicker">Thank you</div>
+      <h1>That genuinely helps.</h1>
+      <p class="lede">
+        Your donation is recorded on the running total. It pays for a small
+        amount of my time, and keeps this project free for everyone who can't
+        afford to pay.
+      </p>
+
+      <div class="next">
+        <h2>What's next?</h2>
+        <ul>
+          <li>
+            Feature request or bug? <a href={`${config.githubRepo}/issues`}>Open an issue</a> —
+            donors get priority.
+          </li>
+          <li>
+            Not yet connected? <a href="/#install">Install in 30 seconds</a>.
+          </li>
+          <li>
+            Share with someone on a Bitbucket team — that helps as much as the money.
+          </li>
+        </ul>
+      </div>
+
+      <div class="attribution">
+        <p>
+          You'll get a receipt from Stripe by email. Your name (if you provided one)
+          will appear on the <a href="/#donate">recent supporters</a> list within
+          a minute or so. Want it anonymous? Email
+          <a href="mailto:hello@raiteri.net">hello@raiteri.net</a> and I'll remove it.
+        </p>
+      </div>
+
+      <a class="btn" href="/">← Back to the site</a>
+    </div>
+  </section>
+  <Footer slot="after-main" />
+</Base>
+
+<style>
+  .thanks {
+    padding: 5rem 0 3rem;
+    background: radial-gradient(circle at 50% 0%, var(--accent-soft) 0%, transparent 50%),
+      var(--bg);
+    min-height: 60vh;
+  }
+  .kicker { color: var(--accent-ink); }
+  h1 { margin-top: 0.5rem; }
+  .lede {
+    color: var(--ink-muted);
+    font-size: 1.1rem;
+    max-width: 60ch;
+    margin: 1rem 0 2rem;
+  }
+  .next {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.5rem 1.8rem;
+    margin: 2rem 0;
+  }
+  .next h2 { margin: 0 0 0.8rem; font-size: 1.1rem; }
+  .next ul { margin: 0; padding-left: 1.2rem; color: var(--ink-muted); }
+  .next ul li { margin-bottom: 0.5rem; }
+  .attribution {
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+    margin: 2rem 0;
+    max-width: 60ch;
+  }
+</style>

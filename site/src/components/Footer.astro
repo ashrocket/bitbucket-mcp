@@ -1,0 +1,63 @@
+---
+import { config } from '../lib/config';
+---
+
+<footer>
+  <div class="shell foot">
+    <div class="foot-col">
+      <div class="brand-row">
+        <span class="brand-mark" aria-hidden="true">⑄</span>
+        <strong>{config.siteName}</strong>
+      </div>
+      <p>
+        Built by <a href={config.author.url} rel="noopener noreferrer">{config.author.name}</a>
+        &middot; Source on <a href={config.githubRepo} rel="noopener noreferrer">GitHub</a>
+      </p>
+      <p class="small">
+        MIT licensed. No telemetry. No tracking. No lock-in.<br />
+        Not affiliated with Atlassian.
+      </p>
+    </div>
+    <div class="foot-col">
+      <strong>Product</strong>
+      <ul>
+        <li><a href="/#install">Install</a></li>
+        <li><a href="/#tools">Tools</a></li>
+        <li><a href="/#donate">Donate</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <strong>Resources</strong>
+      <ul>
+        <li><a href={`${config.githubRepo}/blob/main/README.md`} rel="noopener noreferrer">Docs</a></li>
+        <li><a href={`${config.githubRepo}/issues`} rel="noopener noreferrer">Issues</a></li>
+        <li><a href={`${config.githubRepo}/blob/main/LICENSE`} rel="noopener noreferrer">License (MIT)</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: var(--bg-elev);
+    border-top: 1px solid var(--rule);
+    padding: 3rem 0 3.5rem;
+    margin-top: 3rem;
+  }
+  .foot {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+  }
+  @media (max-width: 640px) {
+    .foot { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+  .foot-col strong { display: block; margin-bottom: 0.5rem; color: var(--ink); }
+  .foot-col p { color: var(--ink-muted); margin: 0.3rem 0; font-size: 0.92rem; }
+  .foot-col .small { color: var(--ink-faint); font-size: 0.85rem; margin-top: 0.6rem; }
+  .foot-col ul { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .foot-col ul li { margin-bottom: 0.35rem; }
+  .foot-col ul li a { color: var(--ink-muted); font-size: 0.92rem; }
+  .brand-row { display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .brand-mark { color: var(--accent-ink); font-size: 1.2rem; transform: rotate(-10deg); display: inline-block; }
+</style>

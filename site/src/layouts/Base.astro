@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+import { config } from '../lib/config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  pathname?: string;
+}
+
+const {
+  title = `${config.siteName} — ${config.tagline}`,
+  description = 'Zero-config Bitbucket Cloud MCP for Claude, Codex, Cursor. Free. Donation-supported. 20 tools for PR review and CI triage — the Bitbucket-shaped hole in Atlassian\'s official MCP.',
+  pathname = Astro.url.pathname,
+} = Astro.props;
+
+const canonicalUrl = new URL(pathname, Astro.site ?? 'https://bitbucket-mcp.raiteri.net').toString();
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/rss+xml" title={config.siteName} href="/changelog.xml" />
+</head>
+<body>
+<header class="site-header">
+  <div class="shell nav">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">⑄</span>
+      <span class="brand-text">{config.siteName}</span>
+    </a>
+    <nav>
+      <a href="/#install">Install</a>
+      <a href="/#tools">Tools</a>
+      <a href="/#donate">Donate</a>
+      <a href={config.githubRepo} rel="noopener noreferrer">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <slot />
+</main>
+
+<slot name="after-main" />
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(160%) blur(10px);
+    -webkit-backdrop-filter: saturate(160%) blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 1rem;
+  }
+  .brand:hover { text-decoration: none; }
+  .brand-mark {
+    color: var(--accent-ink);
+    font-size: 1.3rem;
+    line-height: 1;
+    transform: rotate(-10deg);
+    display: inline-block;
+  }
+  nav {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.95rem;
+  }
+  nav a {
+    color: var(--ink-muted);
+  }
+  nav a:hover { color: var(--ink); text-decoration: none; }
+  @media (max-width: 540px) {
+    .brand-text { display: none; }
+    nav { gap: 1rem; }
+  }
+</style>
+</body>
+</html>
